@@ -1,0 +1,203 @@
+1. User
+
+public async up(queryRunner: QueryRunner): Promise<void> {
+        console.log("Running migration: CreateUsersTable")
+
+    await queryRunner.query(`
+      CREATE TABLE "users" (
+        "id" UUID DEFAULT uuid_generate_v7(),
+        "email" VARCHAR(255) NOT NULL, 
+        "password" VARCHAR(255) NULL, 
+        "provider" VARCHAR(50) NOT NULL DEFAULT 'local', 
+        "providerId" VARCHAR(255) NULL, 
+        "isActive" BOOLEAN NOT NULL DEFAULT false, 
+        "createdAt" TIMESTAMP NOT NULL DEFAULT now(), 
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), 
+        CONSTRAINT "PK_users_id" PRIMARY KEY ("id")
+      )
+        
+    `);
+
+    await queryRunner.query(`
+      CREATE UNIQUE INDEX "IDX_USERS_EMAIL" ON "users" ("email")
+    `);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    console.log("Reverting migration: CreateUsersTable");
+    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_USERS_EMAIL"`);
+    await queryRunner.query(`DROP TABLE IF EXISTS "users"`);
+  }
+
+  ================
+  
+2. Role:
+
+public async up(queryRunner: QueryRunner): Promise<void> {
+
+        console.log("Running migration: CreateTableRoles");
+
+    await queryRunner.query(`
+      CREATE TABLE "roles" (
+        "id" UUID DEFAULT uuid_generate_v7(),
+        "role_name" VARCHAR(255) NOT NULL,
+        "description" TEXT NULL,
+        "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "deleted_at" TIMESTAMP NULL,
+        CONSTRAINT "PK_roles_id" PRIMARY KEY ("id")
+      )
+    `);
+
+    await queryRunner.query(`
+      CREATE UNIQUE INDEX "IDX_ROLES_ROLE_NAME" ON "roles" ("role_name")
+    `);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    console.log("Reverting migration: CreateRolesTable");
+    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_ROLES_ROLE_NAME"`);
+    await queryRunner.query(`DROP TABLE IF EXISTS "roles"`);
+  }
+
+  ================
+
+3. User_roles relation:
+
+public async up(queryRunner: QueryRunner): Promise<void> {
+    console.log("Running migration: CreateUsersRoleTable");
+
+    await queryRunner.query(`
+      CREATE TABLE "users_roles" (
+        "user_id" UUID NOT NULL,
+        "role_id" UUID NOT NULL,
+        CONSTRAINT "PK_users_roles" PRIMARY KEY ("user_id", "role_id")
+      )
+    `);
+
+    await queryRunner.query(`
+      ALTER TABLE "users_roles" 
+      ADD CONSTRAINT "FK_USERS_ROLES_USER" 
+      FOREIGN KEY ("user_id") REFERENCES "users" ("id") 
+      ON DELETE CASCADE ON UPDATE CASCADE
+    `);
+
+    await queryRunner.query(`
+      ALTER TABLE "users_roles" 
+      ADD CONSTRAINT "FK_USERS_ROLES_ROLE" 
+      FOREIGN KEY ("role_id") REFERENCES "roles" ("id") 
+      ON DELETE CASCADE ON UPDATE CASCADE
+    `);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    console.log("Reverting migration: CreateUsersRoleTable");
+    await queryRunner.query(`ALTER TABLE "users_roles" DROP CONSTRAINT IF EXISTS "FK_USERS_ROLES_ROLE"`);
+    await queryRunner.query(`ALTER TABLE "users_roles" DROP CONSTRAINT IF EXISTS "FK_USERS_ROLES_USER"`);
+    await queryRunner.query(`DROP TABLE IF EXISTS "users_roles"`);
+  }
+
+  ================
+  4. Seed Role TABLE
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
+        console.log("seeding role table...  " + this.name);
+        
+        await queryRunner.query(`
+            INSERT INTO roles (id, role_name) VALUES 
+            (uuid_generate_v7(), 'ADMIN'),
+            (uuid_generate_v7(), 'SUPER_ADMIN'),
+            (uuid_generate_v7(), 'CUSTOMER'),
+            (uuid_generate_v7(), 'MANAGER'),
+            (uuid_generate_v7(), 'FINANCE'),
+            (uuid_generate_v7(), 'DEVELOPER'),
+            (uuid_generate_v7(), 'MARKETING');
+    `);
+  
+  }
+
+        
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        console.log("reverting seed for roles table...");
+        
+        await queryRunner.query(`
+            DELETE FROM roles WHERE role_name IN (
+            'ADMIN', 'SUPER_ADMIN', 'CUSTOMER', 'MANAGER', 
+            'FINANCE', 'DEVELOPER', 'MARKETING'
+            );
+            `);
+        
+  }
+
+
+  ================
+  5. Customer Profiles:
+
+  name = "CreateTableCustomerProfiles1783468526998";
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+      console.log("Create customer profiles table...." + this.name);
+
+    await queryRunner.query(`
+      CREATE TABLE "customer_profiles" (
+        "id" UUID DEFAULT uuid_generate_v7() PRIMARY KEY,
+        "user_id" UUID NOT NULL UNIQUE,
+        "phone" VARCHAR(20),
+        "address" TEXT,
+        "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+        CONSTRAINT "FK_customer_profiles_user"
+          FOREIGN KEY ("user_id")
+          REFERENCES "users"("id")
+          ON DELETE CASCADE
+      )
+    `);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    
+    console.log("Reverting migration: CreateTableCustomerProfiles");
+
+    await queryRunner.query(`DROP TABLE IF EXISTS "customer_profiles"`);
+  }
+
+
+  ============
+  6. Product
+
+  public async up(queryRunner: QueryRunner): Promise<void>{
+    
+    console.log("Running migration: CreateProductsTable");    
+    await queryRunner.query(`
+        CREATE TABLE "products" (
+            "id" UUID DEFAULT uuid_generate_v7(),
+            "name" VARCHAR(255) NOT NULL,
+            "sku" VARCHAR(255) NULL,
+            "description" TEXT NULL DEFAULT NULL,
+            "price" NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+            "quantity" INT NOT NULL DEFAULT 0,
+            "isActive" BOOLEAN NOT NULL DEFAULT true,
+            "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+            "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
+            CONSTRAINT "PK_products_id" PRIMARY KEY ("id")
+        )
+    `);
+
+    await queryRunner.query(`
+        CREATE UNIQUE INDEX "IDX_PRODUCTS_NAME" ON "products" ("name")
+    `);
+
+    await queryRunner.query(`
+        CREATE UNIQUE INDEX "IDX_PRODUCTS_SKU" ON "products" ("sku")
+    `);
+}
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        console.log("Reverting migration: CreateProductsTable");
+
+        await queryRunner.query(`DROP INDEX IF EXISTS "IDX_PRODUCTS_SKU"`);
+
+        await queryRunner.query(`DROP INDEX IF EXISTS "IDX_PRODUCTS_NAME"`);
+        
+        await queryRunner.query(`DROP TABLE IF EXISTS "products"`);
+    }
