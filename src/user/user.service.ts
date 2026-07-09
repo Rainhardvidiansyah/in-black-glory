@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { encodePassword } from '../utils/password.encoder';
@@ -10,6 +10,7 @@ import { RoleService } from 'src/role/role.service';
 @Injectable()
 export class UserService {
     
+    private readonly logger = new Logger(UserService.name);
     
     constructor(
         @Inject('DATA_SOURCE') private readonly dataSource: DataSource,
@@ -21,6 +22,7 @@ export class UserService {
 
     //CREATE NEW USER FOR LOCAL REGISTRATION
     async createLocalUser(createUserLocalDto: CreateUserLocalDto): Promise<User> {
+        this.logger.log(`Creating new user with email: ${createUserLocalDto.email}`);
 
       const isEmailExisting = await this.getUserByEmail(createUserLocalDto.email);
     
@@ -36,7 +38,6 @@ export class UserService {
         
         const role = await this.rolesService.findRoleByRoleName('CUSTOMER');
         
-
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
@@ -48,6 +49,10 @@ export class UserService {
           password: hashedPassword,
           roles: [role]
         });
+
+        
+        this.logger.log(`New user created: ${JSON.stringify(newUser)}`);
+
 
         await this.customerProfileService.createCustomerProfiles(newUser, queryRunner);
 
