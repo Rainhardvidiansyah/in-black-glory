@@ -5,7 +5,9 @@ import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
 @Entity('customer_profiles')
 export class CustomerProfile{
 
-  @PrimaryColumn('uuid')
+  @PrimaryColumn('uuid', {
+    default: () => 'uuid_generate_v7()',
+  })
   id: string;
 
   @Column({ nullable: true })
