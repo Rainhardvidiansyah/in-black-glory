@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { ProductsController } from './products.controller';
+import { ProductController } from './product.controller';
 import { DatabaseModule } from 'src/database/database.module';
 import { productProviders } from './product.providers';
 import { RedisConfigModule } from 'src/redisconfig/redis-config.module';
@@ -12,6 +12,6 @@ import { RedisConfigModule } from 'src/redisconfig/redis-config.module';
  
   providers: [ProductService, ...productProviders],
 
-  controllers: [ProductsController]
+  controllers: [ProductController]
 })
 export class ProductModule {}

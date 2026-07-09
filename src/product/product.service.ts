@@ -5,6 +5,7 @@ import { RedisCacheKey } from 'src/common/constants/redis-cache-key.constant';
 import { RedisTTL } from 'src/common/constants/redis-ttl.constants';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/products.entity';
+import { ProductResponseDto } from './dto/product-response.dto';
 
 @Injectable()
 export class ProductService {
@@ -19,7 +20,7 @@ export class ProductService {
   ){}
 
 
-  /*
+  
   //GET PRODUCT BY ID
   async getProductById(id: string){
 
@@ -27,16 +28,13 @@ export class ProductService {
 
     this.logger.log(`Cache key: ${productCacheKey}`);
 
-    const cachedProduct = await this.redisService.get<any>(productCacheKey);
+    const cachedProduct = await this.redisService.get<ProductResponseDto>(productCacheKey);
 
     if (cachedProduct) {
-
       return cachedProduct
     }
       
     const product = await this.productRepository.findOne({ where: { id } });
-
-    
     
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
@@ -55,6 +53,8 @@ export class ProductService {
     return productData;
   }
   
+
+  
   
   //GET ALL PRODUCT
   async getAllProducts(): Promise<Product[]>{
@@ -63,7 +63,7 @@ export class ProductService {
   }
 
 
-  
+  /*
   //UPDATE PRODUCT BY ID
   async updateProductById(id: string, updateProductDto: UpdateProductDto): Promise<Product>{
 
@@ -83,7 +83,9 @@ export class ProductService {
     return updatedProduct;
   }
 
+ */
 
+  
   //DELETE PRODUCT BY ID
   async deleteProductById(id: string): Promise<void>{
 
@@ -97,5 +99,5 @@ export class ProductService {
 
     await this.productRepository.remove(productId);
   }
-*/
+
 }

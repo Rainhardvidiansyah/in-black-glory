@@ -4,13 +4,14 @@ import { ResponseMessage } from 'src/common/decorators/response-message.decorato
 import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('products')
-export class ProductsController {
+export class ProductController {
 
   constructor(private readonly productsService: ProductService) {}
 
-  /*
+  
 
   // example: GET /products/:id
+  @ResponseMessage('Product id fetched successfully')
   @Get(':id')
   async getProductById(@Param('id') id: string){
     const data = await this.productsService.getProductById(id);
@@ -18,12 +19,15 @@ export class ProductsController {
   }
 
 
+  
   @ResponseMessage('All products fetched successfully')
   @Get()
   async getAllProducts(){
     return this.productsService.getAllProducts();
   }
 
+  
+  /*
   @Patch(':id')
   async updateProduct(@Param('id', ParseUUIDPipe) id: string,
   @Body() updateProductDto: UpdateProductDto) {
