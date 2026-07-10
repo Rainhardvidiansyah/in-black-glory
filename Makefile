@@ -1,19 +1,19 @@
 include .env
 
 start-container-pg:
-	docker run --name postgres-nest -e POSTGRES_USER=$(POSTGRES_USER) -e POSTGRES_PASSWORD=$(POSTGRES_PASSWORD) -e POSTGRES_DB=$(POSTGRES_DB) -p $(POSTGRES_PORT):5432 -d postgres:latest
+	docker run --name postgres-in-black-glory -e POSTGRES_USER=$(POSTGRES_USER) -e POSTGRES_PASSWORD=$(POSTGRES_PASSWORD) -e POSTGRES_DB=$(POSTGRES_DB) -p $(POSTGRES_PORT):5432 -d postgres:latest
 
 db_run:
-	docker container start postgres-nest
+	docker container start postgres-in-black-glory
 
 docker-compose-up:
 	docker-compose up
 
 db:
-	docker exec -it postgres-nest psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
+	docker exec -it postgres-in-black-glory psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
 
 build-image: 
-	docker build -t nest-oauth-app .
+	docker build -t ibg-app .
 
 run-docker-compose:
 	docker-compose up -d
@@ -22,9 +22,9 @@ stop-docker-compose:
 	docker-compose down
 
 rebuild:
-	docker-compose down && docker-compose build --no-cache app && docker-compose up
+	docker-compose down && docker-compose build --no-cache ibg-app && docker-compose up
 
 build-app:
-	docker-compose build --no-cache app
+	docker-compose build --no-cache ibg-app
 
 
