@@ -13,7 +13,9 @@ import { User } from '../user/user.entity';
 @Entity('roles')
 export class Role {
 
-  @PrimaryColumn('uuid')
+  @PrimaryColumn('uuid', {
+    default: () => "uuid_generate_v7()",
+  })
   id!: string;
 
   @Index({ unique: true })
