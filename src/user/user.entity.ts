@@ -6,7 +6,9 @@ import { Column, CreateDateColumn, Entity, Index, JoinTable, ManyToMany, Primary
 @Entity('users')
 export class User {
   
-  @PrimaryColumn('uuid')
+  @PrimaryColumn('uuid', {
+    default: () => 'uuid_generate_v7()',
+  })
   id: string;
 
   @Index({ unique: true })
