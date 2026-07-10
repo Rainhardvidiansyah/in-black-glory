@@ -28,3 +28,8 @@ build-app:
 	docker-compose build --no-cache ibg-app
 
 
+.PHONY: migration
+
+migration:
+	@read -p "Enter migration name:" migration_name; \
+	npx typeorm migration:create src/db/migrations/$$migration_name
