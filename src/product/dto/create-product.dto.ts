@@ -1,10 +1,12 @@
 import { Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
-export class UpdateProductDto {
+
+export class CreateProductDto{
+
   @IsString()
-  @IsOptional()
-  name?: string;
+  @IsNotEmpty()
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -13,7 +15,5 @@ export class UpdateProductDto {
   @IsNumber({ maxDecimalPlaces: 2 }) // NUMERIC(10,2) as in the DB Postgresql
   @Min(0)
   @Type(() => Number)
-  basePrice?: number;
-
+  basePrice!: number;
 }
-

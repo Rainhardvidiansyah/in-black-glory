@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { RedisConfigService } from 'src/redisconfig/redisconfig.service';
 import { RedisCacheKey } from 'src/common/constants/redis-cache-key.constant';
@@ -6,6 +6,9 @@ import { RedisTTL } from 'src/common/constants/redis-ttl.constants';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/products.entity';
 import { ProductResponseDto } from './dto/product-response.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+import slugify from 'slugify';
+
 
 @Injectable()
 export class ProductService {
@@ -21,6 +24,32 @@ export class ProductService {
 
 
   
+
+
+  async createProduct(createProductDto: CreateProductDto): Promise<Product> {
+    this.logger.log(`Creating product: ${JSON.stringify(createProductDto)}`);
+
+    const finalSlug = await this.generateUniqueSlug(createProductDto.name);
+
+    const product = this.productRepository.create({
+      slug: finalSlug,
+      ...createProductDto
+    });
+
+    try{
+      return await this.productRepository.save(product);
+
+    }catch(error){
+      if(error && typeof error === 'object' && 'code' in error && error.code === '23505'){
+        throw new ConflictException("Slug already exists. Please choose a different name for the product...");
+      }
+      throw error;
+    }
+  }
+  
+
+
+
   //GET PRODUCT BY ID
   async getProductById(id: string){
 
@@ -63,7 +92,7 @@ export class ProductService {
   }
 
 
-  /*
+  
   //UPDATE PRODUCT BY ID
   async updateProductById(id: string, updateProductDto: UpdateProductDto): Promise<Product>{
 
@@ -83,7 +112,7 @@ export class ProductService {
     return updatedProduct;
   }
 
- */
+ 
 
   
   //DELETE PRODUCT BY ID
@@ -100,4 +129,20 @@ export class ProductService {
     await this.productRepository.remove(productId);
   }
 
+
+  private async generateUniqueSlug(name: string): Promise<string> {
+
+    const baseSlug = slugify(name, { lower: true, strict: true });
+
+    const existingProducts = await this.productRepository
+    .createQueryBuilder("product")
+    .where("product.slug ILIKE: slug", { slug: `${baseSlug}%`})
+    .getMany();
+
+    const finalSlug = existingProducts.length > 0 
+    ? `${baseSlug}-${Date.now()}` 
+    : baseSlug;
+
+    return finalSlug;
+  }
 }
