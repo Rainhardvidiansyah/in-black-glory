@@ -1,14 +1,27 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Put } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, ParseUUIDPipe, Patch, Post, Put } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorators';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+import { Roles } from 'src/common/decorators/roles.decorators';
+import { Role } from 'src/common/enums/role.enum';
 
 @Controller('products')
 export class ProductController {
 
+  private logger = new Logger(ProductController.name);
+
   constructor(private readonly productsService: ProductService) {}
 
-  
+
+  @ResponseMessage('Product created successfully')
+  @Post("/")
+  @Roles(Role.ADMIN)
+  async createProduct(createProductDto: CreateProductDto){
+    
+    this.logger.log(`Product controller --- Create Product: ${JSON.stringify(createProductDto)}`)
+    return this.productsService.createProduct(createProductDto);
+  }
 
   // example: GET /products/:id
   @ResponseMessage('Product id fetched successfully')
