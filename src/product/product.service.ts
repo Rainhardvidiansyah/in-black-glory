@@ -115,7 +115,7 @@ export class ProductService {
  
 
   
-  //DELETE PRODUCT BY ID
+  //DELETE PRODUCT BY ID -- IMPLEMENTING SOFT DELETE
   async deleteProductById(id: string): Promise<void>{
 
     const productId = await this.productRepository.findOneBy({id});
@@ -126,17 +126,21 @@ export class ProductService {
 
     await this.redisService.delete(RedisCacheKey.PRODUCT(productId.id));
 
-    await this.productRepository.remove(productId);
+    await this.productRepository.softDelete(id);
   }
 
 
+
+
+
+  //GENERATE UNIQUE SLUG
   private async generateUniqueSlug(name: string): Promise<string> {
 
     const baseSlug = slugify(name, { lower: true, strict: true });
 
     const existingProducts = await this.productRepository
     .createQueryBuilder("product")
-    .where("product.slug ILIKE: slug", { slug: `${baseSlug}%`})
+    .where("product.slug ILIKE :slug", { slug: `${baseSlug}%`})
     .getMany();
 
     const finalSlug = existingProducts.length > 0 
