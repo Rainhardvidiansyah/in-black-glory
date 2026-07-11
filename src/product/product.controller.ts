@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Param, ParseUUIDPipe, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Logger, Param, ParseUUIDPipe, Patch, Post, Put } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorators';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -17,7 +17,7 @@ export class ProductController {
   @ResponseMessage('Product created successfully')
   @Post("/")
   @Roles(Role.ADMIN)
-  async createProduct(createProductDto: CreateProductDto){
+  async createProduct(@Body() createProductDto: CreateProductDto){
     
     this.logger.log(`Product controller --- Create Product: ${JSON.stringify(createProductDto)}`)
     return this.productsService.createProduct(createProductDto);
@@ -42,12 +42,19 @@ export class ProductController {
   
   /*
   @Patch(':id')
+  @Roles(Role.ADMIN)
   async updateProduct(@Param('id', ParseUUIDPipe) id: string,
   @Body() updateProductDto: UpdateProductDto) {
     return await this.productsService.updateProductById(id, updateProductDto);
   }
-
   */
+
+
+  @Delete('/')
+  @Roles(Role.ADMIN)
+  async deleteProductById(id: string){
+    this.productsService.deleteProductById(id);
+  }
 }
 
 
