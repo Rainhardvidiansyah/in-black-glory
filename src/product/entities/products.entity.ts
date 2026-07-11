@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { ProductVariant } from './product-variant.entity';
+import { ColumnNumericTransformer } from 'src/utils/column-numeric.transformers';
 
 @Entity('products')
 export class Product {
@@ -21,7 +22,15 @@ export class Product {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, default: 0.0 })
+  @Column({ type: 'varchar', length: 255, unique: true})
+  slug: string;
+
+  @Column({ type: 'numeric',
+    precision: 10, 
+    scale: 2, 
+    default: 0.0,
+    transformer: ColumnNumericTransformer
+   })
   basePrice: number;
 
   @Column({ default: true })
