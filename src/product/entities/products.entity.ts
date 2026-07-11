@@ -14,7 +14,9 @@ import { ColumnNumericTransformer } from 'src/utils/column-numeric.transformers'
 @Entity('products')
 export class Product {
 
-  @PrimaryColumn('uuid')
+  @PrimaryColumn('uuid', {
+    default: () => 'uuid_generate_v7()',
+  })
   id: string;
 
   @Column()
