@@ -92,6 +92,17 @@ export class ProductService {
   }
 
 
+  //Find Product By Id
+  async findProductById(id: string): Promise<Product>{
+    const product = await this.productRepository.findOne({where: {id}});
+    
+    if(!product){
+      throw new NotFoundException("Product not found");
+    }
+    return product;
+  }
+
+
   
   //UPDATE PRODUCT BY ID
   async updateProductById(id: string, updateProductDto: UpdateProductDto): Promise<Product>{
