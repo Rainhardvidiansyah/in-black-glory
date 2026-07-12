@@ -14,7 +14,9 @@ import { Product } from './products.entity';
 @Entity('product_variants')
 export class ProductVariant {
   
-  @PrimaryColumn('uuid')
+  @PrimaryColumn('uuid', {
+    default: () => 'uuid_generate_v7()',
+  })
   id: string;
 
   @Column()

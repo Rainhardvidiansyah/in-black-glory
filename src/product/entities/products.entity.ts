@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { ProductVariant } from './product-variant.entity';
 import { ColumnNumericTransformer } from 'src/utils/column-numeric.transformers';
@@ -13,7 +14,9 @@ import { ColumnNumericTransformer } from 'src/utils/column-numeric.transformers'
 @Entity('products')
 export class Product {
 
-  @PrimaryColumn('uuid')
+  @PrimaryColumn('uuid', {
+    default: () => 'uuid_generate_v7()',
+  })
   id: string;
 
   @Column()
@@ -41,6 +44,9 @@ export class Product {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deletedAt', type: 'timestamp', nullable: true })
+  deletedAt: Date | null;
 
   @OneToMany(() => ProductVariant, (variant) => variant.product)
   variants: ProductVariant[];
