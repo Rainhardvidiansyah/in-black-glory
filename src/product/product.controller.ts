@@ -8,7 +8,7 @@ import { Role } from 'src/common/enums/role.enum';
 import { ProductVariantService } from './product-variant.service';
 import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { Public } from 'src/common/decorators/public.decorators';
-import { ProductVariantResponse } from './dto/product-varian.response.dto';
+import { ProductVariantResponse } from './dto/product-variant.response.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
 
 @Controller('products')
