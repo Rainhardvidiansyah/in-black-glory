@@ -3,4 +3,5 @@ export const RedisTTL = {
   USER_PROFILE: 30,
   REFRESH_TOKEN: 7 * 24 * 60,
   RATE_LIMIT: 1,
+  PRODUCT_VARIANT: 10
 } as const;
