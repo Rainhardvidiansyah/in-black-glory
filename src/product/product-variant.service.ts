@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ProductVariant } from './entities/product-variant.entity';
 import { ProductService } from './product.service';
@@ -128,6 +128,33 @@ export class ProductVariantService {
     await this.variantRepository.softDelete(variantId);
   }
 
+
+  //Update Quantity in Product Variant
+  async updateVariantQuantity(variantId: string, changeAmount: number): Promise<ProductVariant>{
+
+    const variant = await this.variantRepository.findOne({ where: {id: variantId}});
+
+    if(!variant){
+      throw new NotFoundException(`Product varian with id ${variantId} not found`);
+    }
+
+    const newQuantity = variant.quantity + changeAmount
+
+    if (newQuantity < 0) {
+    throw new ConflictException(
+      `Insufficient stock. Remaining stock: ${variant.quantity}, requested reduction: ${Math.abs(changeAmount)}`);
+  }
+
+    variant.quantity = newQuantity;
+
+    return await this.variantRepository.save(variant);
+
+    //send this to restock:
+    // await this.variantsService.updateVariantQuantity(variantId, 10);
+    // send this to reduce the stock, or there is an order:
+    // await this.variantsService.updateVariantQuantity(variantId, -3);
+
+  }
 
 
 }
