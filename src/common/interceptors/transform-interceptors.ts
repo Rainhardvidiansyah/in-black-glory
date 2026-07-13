@@ -1,6 +1,7 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { instanceToPlain } from 'class-transformer';
+import { randomUUID } from 'node:crypto';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -13,21 +14,38 @@ export class TransformInterceptor<T> implements NestInterceptor {
     const response = context.switchToHttp().getResponse();
     const request = context.switchToHttp().getRequest();
     
-    const message = this.reflector.get<string>(
+    // Priority: custom @ResponseMessage() decorator > message from returned data > default 'Success'
+    const customMessage = this.reflector.get<string>(
       'response_message',
-      context.getHandler()
-    ) ?? 'Success';
+      context.getHandler(),
+    );
 
-
+    //If @ResponseMessage is used in controller methods, then customMessage will appear.
+    //If not, the OK from below variable will be used
+    
     return next.handle().pipe(
       map((data) => {
-        return {
-          statusCode: response.statusCode,
-          message,
-          data: data
-          // instanceToPlain(data), 
-        };
-      }),
-    );
+        const message = data?.message || response.statusMessage || 'OK';
+      
+        const responseData = data?.data !== undefined ? data.data : data;
+
+        return{ 
+          metadata: {
+          message: customMessage || message,
+          path: request.url,
+          requestId: request.requestId ?? request.headers['x-request-id'] ?? randomUUID(),
+          status: response.statusCode,
+          timestamp: new Date().toISOString(),
+        },
+        data: responseData
+      }
+      }));
+
+
+        
+        //   // instanceToPlain(data), 
+        // };
+    
   }
+
 }
