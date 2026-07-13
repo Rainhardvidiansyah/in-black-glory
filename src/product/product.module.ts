@@ -6,6 +6,7 @@ import { productProviders } from './product.providers';
 import { RedisConfigModule } from 'src/redisconfig/redis-config.module';
 import { ProductVariantService } from './product-variant.service';
 import { productVariantProviders } from './product-variant.providers';
+import { ProductVariantController } from './product-variants.controller';
 
 
 @Module({
@@ -16,6 +17,6 @@ import { productVariantProviders } from './product-variant.providers';
     ProductService, ...productProviders, 
     ProductVariantService, ...productVariantProviders],
 
-  controllers: [ProductController]
+  controllers: [ProductController, ProductVariantController]
 })
 export class ProductModule {}
