@@ -8,6 +8,7 @@ import { RedisCacheKey } from 'src/common/constants/redis-cache-key.constant';
 import { RedisConfigService } from 'src/redisconfig/redisconfig.service';
 import { ProductVariantResponse } from './dto/product-variant.response.dto';
 import { RedisTTL } from 'src/common/constants/redis-ttl.constants';
+import { UpdateVariantDto } from './dto/update-variant.dto';
 
 
 @Injectable()
@@ -157,8 +158,19 @@ export class ProductVariantService {
   }
 
 
-}
+  async updateVariant(variantId: string, updateVariantDto: UpdateVariantDto): Promise<ProductVariant>{
+    const variant = await this.variantRepository.findOne({ where: { id: variantId}});
 
-//createProductVarian(productId: string, createProductVariantDto: CreateProductVariantDto): Promise<ProductVariant>
-//getVariantById(varianId: string): Promise<ProductVariantResponse>
-//deleteProductVariantById(variantId: string): Promise<void>
+    if(!variant){
+      throw new NotFoundException(`Variant with id ${variantId} not found`);
+    }
+
+    Object.assign(variant, updateVariantDto);
+
+    return this.variantRepository.save(variant);
+
+
+  }
+
+
+}
