@@ -15,9 +15,8 @@ export class ProductVariantResponse{
   size: string;
 
   constructor(varian: ProductVariant){
-    this.productId = varian.product.id;
+    this.productId = varian.productId;
     this.productVariantId = varian.id;
-    this.productName = varian.product.name;
     this.color = varian.color;
     this.quantity = varian.quantity;
     this.size = varian.size;

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ProductVariant } from './entities/product-variant.entity';
 import { ProductService } from './product.service';
@@ -8,6 +8,7 @@ import { RedisCacheKey } from 'src/common/constants/redis-cache-key.constant';
 import { RedisConfigService } from 'src/redisconfig/redisconfig.service';
 import { ProductVariantResponse } from './dto/product-variant.response.dto';
 import { RedisTTL } from 'src/common/constants/redis-ttl.constants';
+import { UpdateVariantDto } from './dto/update-variant.dto';
 
 
 @Injectable()
@@ -129,9 +130,47 @@ export class ProductVariantService {
   }
 
 
+  //Update Quantity in Product Variant
+  async updateVariantQuantity(variantId: string, changeAmount: number): Promise<ProductVariant>{
+
+    const variant = await this.variantRepository.findOne({ where: {id: variantId}});
+
+    if(!variant){
+      throw new NotFoundException(`Product varian with id ${variantId} not found`);
+    }
+
+    const newQuantity = variant.quantity + changeAmount
+
+    if (newQuantity < 0) {
+    throw new ConflictException(
+      `Insufficient stock. Remaining stock: ${variant.quantity}, requested reduction: ${Math.abs(changeAmount)}`);
+  }
+
+    variant.quantity = newQuantity;
+
+    return await this.variantRepository.save(variant);
+
+    //send this to restock:
+    // await this.variantsService.updateVariantQuantity(variantId, 10);
+    // send this to reduce the stock, or there is an order:
+    // await this.variantsService.updateVariantQuantity(variantId, -3);
+
+  }
+
+
+  async updateVariant(variantId: string, updateVariantDto: UpdateVariantDto): Promise<ProductVariant>{
+    const variant = await this.variantRepository.findOne({ where: { id: variantId}});
+
+    if(!variant){
+      throw new NotFoundException(`Variant with id ${variantId} not found`);
+    }
+
+    Object.assign(variant, updateVariantDto);
+
+    return this.variantRepository.save(variant);
+
+
+  }
+
 
 }
-
-//createProductVarian(productId: string, createProductVariantDto: CreateProductVariantDto): Promise<ProductVariant>
-//getVariantById(varianId: string): Promise<ProductVariantResponse>
-//deleteProductVariantById(variantId: string): Promise<void>
