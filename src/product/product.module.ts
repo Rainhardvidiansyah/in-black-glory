@@ -7,6 +7,8 @@ import { RedisConfigModule } from 'src/redisconfig/redis-config.module';
 import { ProductVariantService } from './product-variant.service';
 import { productVariantProviders } from './product-variant.providers';
 import { ProductVariantController } from './product-variants.controller';
+import { ProductVariantImageService } from './procuct-variant-image.service';
+import { productVariantImageProviders } from './product-variant-image.provider';
 
 
 @Module({
@@ -15,7 +17,9 @@ import { ProductVariantController } from './product-variants.controller';
  
   providers: [
     ProductService, ...productProviders, 
-    ProductVariantService, ...productVariantProviders],
+    ProductVariantService, ...productVariantProviders,
+    ProductVariantImageService, ...productVariantImageProviders
+  ],
 
   controllers: [ProductController, ProductVariantController]
 })
