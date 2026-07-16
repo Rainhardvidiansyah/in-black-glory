@@ -13,6 +13,7 @@ import { QueueModule } from './queue/queue.module';
 import { CustomerModule } from './customer/customer.module';
 import { RoleModule } from './role/role.module';
 import { ProductModule } from './product/product.module';
+import { MinioModule } from './minio/minio.module';
 
 
 @Module({
@@ -50,7 +51,7 @@ import { ProductModule } from './product/product.module';
     ProductModule,
     EmailModule,
     QueueModule, 
-    CustomerModule,
+    CustomerModule, MinioModule,
   ],
   providers: [],
 
