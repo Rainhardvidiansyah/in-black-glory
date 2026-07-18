@@ -9,11 +9,13 @@ import { productVariantProviders } from './product-variant.providers';
 import { ProductVariantController } from './product-variants.controller';
 import { ProductVariantImageService } from './procuct-variant-image.service';
 import { productVariantImageProviders } from './product-variant-image.provider';
+import { MinioModule } from 'src/minio/minio.module';
+import { ProductVariantImagesController } from './product-variant-images.controller';
 
 
 @Module({
 
-  imports: [DatabaseModule, RedisConfigModule],
+  imports: [DatabaseModule, RedisConfigModule, MinioModule],
  
   providers: [
     ProductService, ...productProviders, 
@@ -21,6 +23,6 @@ import { productVariantImageProviders } from './product-variant-image.provider';
     ProductVariantImageService, ...productVariantImageProviders
   ],
 
-  controllers: [ProductController, ProductVariantController]
+  controllers: [ProductController, ProductVariantController, ProductVariantImagesController]
 })
 export class ProductModule {}
