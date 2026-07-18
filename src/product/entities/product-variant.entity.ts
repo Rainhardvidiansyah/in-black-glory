@@ -7,8 +7,10 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Product } from './products.entity';
+import { ProductVariantImage } from './product-variant-image.entity';
 
 
 @Entity('product_variants')
@@ -39,6 +41,9 @@ export class ProductVariant {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @OneToMany(() => ProductVariantImage, (image) => image.productVariant)
+  images: ProductVariantImage[];
 
   @CreateDateColumn()
   createdAt: Date;

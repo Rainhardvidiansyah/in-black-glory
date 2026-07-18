@@ -7,16 +7,22 @@ import { RedisConfigModule } from 'src/redisconfig/redis-config.module';
 import { ProductVariantService } from './product-variant.service';
 import { productVariantProviders } from './product-variant.providers';
 import { ProductVariantController } from './product-variants.controller';
+import { ProductVariantImageService } from './procuct-variant-image.service';
+import { productVariantImageProviders } from './product-variant-image.provider';
+import { MinioModule } from 'src/minio/minio.module';
+import { ProductVariantImagesController } from './product-variant-images.controller';
 
 
 @Module({
 
-  imports: [DatabaseModule, RedisConfigModule],
+  imports: [DatabaseModule, RedisConfigModule, MinioModule],
  
   providers: [
     ProductService, ...productProviders, 
-    ProductVariantService, ...productVariantProviders],
+    ProductVariantService, ...productVariantProviders,
+    ProductVariantImageService, ...productVariantImageProviders
+  ],
 
-  controllers: [ProductController, ProductVariantController]
+  controllers: [ProductController, ProductVariantController, ProductVariantImagesController]
 })
 export class ProductModule {}

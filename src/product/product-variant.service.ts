@@ -60,6 +60,7 @@ export class ProductVariantService {
 
 
   async getVariantById(varianId: string): Promise<ProductVariantResponse>{
+    this.logger.log(`Get Varian by Id is hit...`);
 
     //getRedis
     const productVariantCacheKey = RedisCacheKey.PRODUCT_VARIANT(varianId);
@@ -74,7 +75,7 @@ export class ProductVariantService {
 
     const productVariant = await this.variantRepository.findOne({ 
       where: { id: varianId },
-      relations: { product: true }, 
+      relations: { product: true, images: true },
     });
 
     if(!productVariant){
@@ -89,11 +90,12 @@ export class ProductVariantService {
     productName: productVariant.product.name,
     color: productVariant.color,
     size: productVariant.size,
-    quantity: productVariant.quantity
+    quantity: productVariant.quantity,
+    images: productVariant.images
   };
 
     //setRedis
-    await this.redisService.set(productVariantCacheKey, JSON.stringify(productVariantData), RedisTTL.PRODUCT_VARIANT);
+    await this.redisService.set(productVariantCacheKey, productVariantData, RedisTTL.PRODUCT_VARIANT);
 
     return productVariantData;
 

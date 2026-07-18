@@ -10,7 +10,7 @@
     "isolatedModules": true,
     "declaration": true,
     "removeComments": true,
-    "types": ["jest", "node"],
+    "types": ["jest", "node", "express", "multer"],
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
