@@ -116,6 +116,7 @@ export class TokenService{
 
   //DELETE REFRESH TOKEN AND USER ID FROM REDIS ==> LOGOUT
   private async deleteRefreshTokenFromRedis(userId: string){
+    this.logger.log(`Delete refresh Token from redis is hit...`);
     await this.redisService.delete(RedisCacheKey.REFRESH_TOKEN(userId));
   }
 
