@@ -27,7 +27,10 @@ export class TransformInterceptor<T> implements NestInterceptor {
       map((data) => {
         const message = data?.message || response.statusMessage || 'OK';
       
-        const responseData = data?.data !== undefined ? data.data : data;
+        const responseData = data?.isPaginated
+        ? { data: data.data, meta: data.meta }
+        : data?.data !== undefined
+        ? data.data : data;
 
         return{ 
           metadata: {

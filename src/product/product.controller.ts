@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Logger, Param, ParseUUIDPipe, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Logger, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorators';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -6,6 +6,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { Roles } from 'src/common/decorators/roles.decorators';
 import { Role } from 'src/common/enums/role.enum';
 import { Public } from 'src/common/decorators/public.decorators';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 @Controller('products')
 export class ProductController {
@@ -16,7 +17,7 @@ export class ProductController {
     private readonly productsService: ProductService,
   ) {}
 
-
+  //Save product to database
   @ResponseMessage('Product created successfully')
   @Post("/")
   @Roles(Role.ADMIN)
@@ -27,19 +28,30 @@ export class ProductController {
   }
 
   // example: GET /products/:id
+  @Public()
   @ResponseMessage('Product id fetched successfully')
   @Get(':id')
-  async getProductById(@Param('id') id: string){
+  async getProductById(@Param('id', new ParseUUIDPipe({version: '7'})) id: string){
     const data = await this.productsService.getProductById(id);
     return data;
   }
 
+  // Get Product by Slug
+  @Public()
+  @ResponseMessage('Product slug fetched successfully')
+  @Get('slug/:slug')
+  async getProductBySlug(@Param('slug') slug: string){
+    const data = await this.productsService.getProductSlug(slug);
+    return data;
+  }
 
+
+  // Fetch all products from database
   @Public()
   @ResponseMessage('All products fetched successfully')
   @Get()
-  async getAllProducts(){
-    return this.productsService.getAllProducts();
+  async getAllProducts(@Query() query: PaginationQueryDto){
+    return this.productsService.getAllProducts(query);
   }
 
   
@@ -53,6 +65,7 @@ export class ProductController {
   */
 
 
+  // Delete product from database
   @Delete('/')
   @Roles(Role.ADMIN)
   async deleteProductById(id: string){
@@ -66,3 +79,6 @@ export class ProductController {
 }
 
 
+
+
+//TODO: Make several methods public!

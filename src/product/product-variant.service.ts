@@ -103,30 +103,39 @@ export class ProductVariantService {
 
 
   //Get Variants By Product Id
-  async getVariantByProductId(productId: string): Promise<ProductVariant[]>{
+  async getVariantByProductId(productId: string): Promise<ProductVariantResponse[]>{
     this.logger.log(`Get variants by product id is hit`)
     
     const variants = await this.variantRepository.find({
       where: {productId: productId},
-      relations: {
-        product: true
-      }
+      relations: { product: true, images: true }
     });
-
+    
     if(variants.length === 0){
       throw new NotFoundException(`Product variant with productId ${productId} not found`);
     }
 
     this.logger.log(`Variants: ${JSON.stringify(variants)}`)
 
-    return variants;
+    const productVariantData: ProductVariantResponse[] = variants.map((variant) => ({
+      productId: variant.productId,
+      productVariantId: variant.id,
+      productName: variant.product.name,
+      color: variant.color,
+      size: variant.size,
+      quantity: variant.quantity,
+      images: variant.images,
+    }));
+
+
+    return productVariantData;
   }
 
 
   //Delete Product Variant By Id
   async deleteProductVariantById(variantId: string): Promise<void>{
 
-    await this.redisService.delete(RedisCacheKey.PRODUCT_VARIANT(variantId));
+    await this.invalidateCacheKey(variantId);
 
     await this.variantRepository.softDelete(variantId);
   }
@@ -140,6 +149,8 @@ export class ProductVariantService {
     if(!variant){
       throw new NotFoundException(`Product varian with id ${variantId} not found`);
     }
+
+    this.invalidateCacheKey(variantId);
 
     const newQuantity = variant.quantity + changeAmount
 
@@ -163,6 +174,8 @@ export class ProductVariantService {
   async updateVariant(variantId: string, updateVariantDto: UpdateVariantDto): Promise<ProductVariant>{
     const variant = await this.variantRepository.findOne({ where: { id: variantId}});
 
+    this.invalidateCacheKey(variantId);
+
     if(!variant){
       throw new NotFoundException(`Variant with id ${variantId} not found`);
     }
@@ -170,8 +183,12 @@ export class ProductVariantService {
     Object.assign(variant, updateVariantDto);
 
     return this.variantRepository.save(variant);
+  }
 
-
+  // Invalidate cache key in several methods
+  private async invalidateCacheKey(variantId: string){
+    const cacheKey = RedisCacheKey.PRODUCT_VARIANT(variantId);
+    await this.redisService.delete(cacheKey);
   }
 
 

@@ -4,6 +4,8 @@ import { ProductVariantImage } from "./entities/product-variant-image.entity";
 import { MinioService } from "src/minio/minio.service";
 import { ProductVariantService } from "./product-variant.service";
 import { MinioBucket } from "src/common/constants/minio-bucket.constant";
+import { RedisConfigService } from "src/redisconfig/redisconfig.service";
+import { RedisCacheKey } from "src/common/constants/redis-cache-key.constant";
 
 
 @Injectable()
@@ -14,6 +16,7 @@ export class ProductVariantImageService{
   constructor(
     @Inject("PRODUCT_VARIANT_IMAGE_REPOSITORY") private readonly variantImageRepository: Repository<ProductVariantImage>,
     private readonly variantsService: ProductVariantService,
+    private readonly redisService: RedisConfigService,
     private readonly minioService: MinioService
   ){}
 
@@ -22,7 +25,9 @@ export class ProductVariantImageService{
   /* Save Image*/
   async upload(variantId: string, file: Express.Multer.File, isPrimaryRequested?: boolean): Promise<ProductVariantImage>{
 
-    const variant = await this.variantsService.getVariantById(variantId);
+    await this.variantsService.getVariantById(variantId);
+
+    await this.invalidateVariantCacheKey(variantId);
 
     const url = await this.minioService.uploadFile(MinioBucket.PRODUCT_IMAGE, file);
 
@@ -73,6 +78,7 @@ export class ProductVariantImageService{
   
   /* Get One Image by Product Variant Id */
   async findOneImageByVariantId(imageId: string): Promise<ProductVariantImage>{
+
     const image = await this.variantImageRepository.findOne({
       where: {productVariantId: imageId}
     });
@@ -86,9 +92,9 @@ export class ProductVariantImageService{
 
   /* Find one image by Image id */
   async findOneImageById(imageId: string): Promise<ProductVariantImage>{
+
     const image = await this.variantImageRepository.findOne(
       {where:  {id : imageId}}
-      
     );
 
     if(!image){
@@ -101,6 +107,8 @@ export class ProductVariantImageService{
   /* Make one image as Primary Image */
   async makeImageAsPrimary(imageId: string): Promise<ProductVariantImage>{
     const image = await this.findOneImageById(imageId);
+
+    await this.invalidateVariantCacheKey(image.productVariantId);
 
     await this.variantImageRepository.update(
       { productVariantId: image.productVariant.id },
@@ -123,6 +131,10 @@ export class ProductVariantImageService{
 
 
 
+  private async invalidateVariantCacheKey(variantId: string){
+    const cacheKey = RedisCacheKey.PRODUCT_VARIANT(variantId);
+    await this.redisService.delete(cacheKey);
+  }
 
 
 

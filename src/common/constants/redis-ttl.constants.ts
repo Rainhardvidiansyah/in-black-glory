@@ -1,5 +1,6 @@
 export const RedisTTL = {
   PRODUCT: 10,
+  PRODUCT_SLUG: 10,
   USER_PROFILE: 30,
   REFRESH_TOKEN: 7 * 24 * 60,
   RATE_LIMIT: 1,
