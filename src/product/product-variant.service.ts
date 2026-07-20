@@ -103,14 +103,12 @@ export class ProductVariantService {
 
 
   //Get Variants By Product Id
-  async getVariantByProductId(productId: string): Promise<ProductVariant[]>{
+  async getVariantByProductId(productId: string): Promise<ProductVariantResponse[]>{
     this.logger.log(`Get variants by product id is hit`)
     
     const variants = await this.variantRepository.find({
       where: {productId: productId},
-      relations: {
-        product: true
-      }
+      relations: { product: true, images: true }
     });
 
     if(variants.length === 0){
@@ -119,7 +117,18 @@ export class ProductVariantService {
 
     this.logger.log(`Variants: ${JSON.stringify(variants)}`)
 
-    return variants;
+    const productVariantData: ProductVariantResponse[] = variants.map((variant) => ({
+      productId: variant.productId,
+      productVariantId: variant.id,
+      productName: variant.product.name,
+      color: variant.color,
+      size: variant.size,
+      quantity: variant.quantity,
+      images: variant.images,
+    }));
+
+
+    return productVariantData;
   }
 
 
