@@ -8,6 +8,9 @@ import { Product } from './entities/products.entity';
 import { ProductResponseDto } from './dto/product-response.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import slugify from 'slugify';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { PaginatedResponse } from './dto/paginated-response.dto';
+import { take } from 'rxjs';
 
 
 @Injectable()
@@ -117,9 +120,23 @@ export class ProductService {
   
   
   //GET ALL PRODUCT
-  async getAllProducts(): Promise<Product[]>{
-
-    return this.productRepository.find();
+  async getAllProducts(query: PaginationQueryDto): Promise<PaginatedResponse<Product>>{
+    const { page = 1, limit = 10, search } = query;
+    const skip = (page - 1) * limit;
+    
+    const queryBuilder = this.productRepository.createQueryBuilder('product');
+    
+    if(search){
+      queryBuilder.where('product.name ILIKE :search', { search: `%${search}%` });
+    }
+    
+    const [data, total] = await queryBuilder
+    .orderBy('product.createdAt', 'DESC')
+    .skip(skip)
+    .take(limit)
+    .getManyAndCount();
+    
+    return new PaginatedResponse(data, total, page, limit);
   }
 
 
