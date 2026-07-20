@@ -32,8 +32,7 @@ export class ProductVariantController{
   @Get("product/:productId")
   async findVariantByProductId(@Param("productId", new ParseUUIDPipe({version: '7'})) productId: string){
     this.logger.log(`findVariantByProductId is hit`);
-    const variants = await this.variantService.getVariantByProductId(productId);
-    return variants.map(v => new ProductVariantResponse(v));
+    return await this.variantService.getVariantByProductId(productId);
 
   }
 
