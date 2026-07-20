@@ -16,7 +16,7 @@ export class ProductController {
     private readonly productsService: ProductService,
   ) {}
 
-
+  //Save product to database
   @ResponseMessage('Product created successfully')
   @Post("/")
   @Roles(Role.ADMIN)
@@ -27,6 +27,7 @@ export class ProductController {
   }
 
   // example: GET /products/:id
+  @Public()
   @ResponseMessage('Product id fetched successfully')
   @Get(':id')
   async getProductById(@Param('id') id: string){
@@ -34,7 +35,17 @@ export class ProductController {
     return data;
   }
 
+  // Get Product by Slug
+  @Public()
+  @ResponseMessage('Product slug fetched successfully')
+  @Get('slug/:slug')
+  async getProductBySlug(@Param('slug') slug: string){
+    const data = await this.productsService.getProductSlug(slug);
+    return data;
+  }
 
+
+  // Fetch all products from database
   @Public()
   @ResponseMessage('All products fetched successfully')
   @Get()
@@ -53,6 +64,7 @@ export class ProductController {
   */
 
 
+  // Delete product from database
   @Delete('/')
   @Roles(Role.ADMIN)
   async deleteProductById(id: string){
@@ -66,3 +78,6 @@ export class ProductController {
 }
 
 
+
+
+//TODO: Make several methods public!
