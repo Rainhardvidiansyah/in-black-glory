@@ -68,7 +68,6 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
-
   
     const productData = {
       productId: product.id,
@@ -76,13 +75,45 @@ export class ProductService {
       basePrice: product.basePrice,
   };
 
-    await this.redisService.set(productCacheKey, productData, RedisTTL.PRODUCT);
-    
+    await this.redisService.set(productCacheKey, productData, RedisTTL.PRODUCT);  
     
     return productData;
   }
-  
 
+
+
+  
+  //Get product by Slug
+  async getProductSlug(slug: string){
+
+    const productCacheKey = RedisCacheKey.PRODUCT_SLUG(slug);
+
+    this.logger.log(`Cache key: ${productCacheKey}`);
+
+    const cachedProduct = await this.redisService.get<ProductResponseDto>(productCacheKey);
+
+    if (cachedProduct) {
+      return cachedProduct
+    }
+      
+    const productSlug = await this.productRepository.findOne({ where: { slug } });
+    
+    if (!productSlug) {
+      throw new NotFoundException(`Product with ID ${slug} not found`);
+    }
+
+  
+    const productDataSlug = {
+      productId: productSlug.id,
+      productName: productSlug.name,
+      basePrice: productSlug.basePrice,
+  };
+
+    await this.redisService.set(productCacheKey, productDataSlug, RedisTTL.PRODUCT_SLUG);
+    
+    return productDataSlug;
+  }
+  
   
   
   //GET ALL PRODUCT
