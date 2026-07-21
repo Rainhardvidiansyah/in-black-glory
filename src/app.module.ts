@@ -14,6 +14,7 @@ import { CustomerModule } from './customer/customer.module';
 import { RoleModule } from './role/role.module';
 import { ProductModule } from './product/product.module';
 import { MinioModule } from './minio/minio.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 
 @Module({
@@ -51,7 +52,7 @@ import { MinioModule } from './minio/minio.module';
     ProductModule,
     EmailModule,
     QueueModule, 
-    CustomerModule, MinioModule,
+    CustomerModule, MinioModule, DashboardModule,
   ],
   providers: [],
 
