@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { UUID } from "typeorm/driver/mongodb/bson.typings.js";
 import { ProductVariant } from "./product-variant.entity";
 
@@ -32,6 +32,9 @@ export class ProductVariantImage{
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deletedAt', type: 'timestamp', nullable: true })
+  deletedAt: Date;
 
 
 

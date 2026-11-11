@@ -126,6 +126,7 @@ export class ProductVariantImageService{
   async removeImage(imageId: string): Promise<void>{
     const image = await this.findOneImageById(imageId);
     await this.minioService.deleteFileFromMinioStorage(MinioBucket.PRODUCT_IMAGE, image.url);
+    await this.variantImageRepository.softDelete(imageId);
   }
 
 

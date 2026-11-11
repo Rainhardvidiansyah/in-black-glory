@@ -16,13 +16,12 @@ import { ProductVariantImagesController } from './product-variant-images.control
 @Module({
 
   imports: [DatabaseModule, RedisConfigModule, MinioModule],
- 
   providers: [
     ProductService, ...productProviders, 
     ProductVariantService, ...productVariantProviders,
     ProductVariantImageService, ...productVariantImageProviders
   ],
-
+  exports: [ProductService, ProductVariantService, ProductVariantImageService],
   controllers: [ProductController, ProductVariantController, ProductVariantImagesController]
 })
 export class ProductModule {}
