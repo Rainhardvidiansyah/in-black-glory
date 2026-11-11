@@ -8,6 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Product } from './products.entity';
 import { ProductVariantImage } from './product-variant-image.entity';
@@ -54,4 +55,7 @@ export class ProductVariant {
   @ManyToOne(() => Product, (product) => product.variants)
   @JoinColumn({ name: 'productId' })
   product: Product;
+
+  @DeleteDateColumn({ type: 'timestamp', precision: 6, nullable: true })
+  deletedAt: Date
 }
