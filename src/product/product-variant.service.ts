@@ -192,4 +192,23 @@ export class ProductVariantService {
   }
 
 
+  async deleteVarianByProductId(productId: string): Promise<void>{
+    const variants = await this.variantRepository.find({ where: {productId: productId}});
+
+    if(variants.length === null){
+      return;
+    }
+
+    const variantIds = variants.map((v) => v.id);
+
+    await this.variantRepository.softDelete(variantIds);
+
+    await Promise.all(variantIds.map(
+      (vId) => this.invalidateCacheKey(vId)
+    ));
+
+
+  }
+
+
 }
